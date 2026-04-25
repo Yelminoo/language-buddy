@@ -17,7 +17,9 @@
       "mcp__Claude_in_Chrome__tabs_context_mcp",
       "Bash(findstr :3005)",
       "Bash(taskkill //PID 10308 //F)",
-      "Bash(curl -s http://localhost:3005/api/projects)"
+      "Bash(curl -s http://localhost:3005/api/projects)",
+      "Bash(git init *)",
+      "Bash(git add *)"
     ]
   }
 }

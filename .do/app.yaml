@@ -1,0 +1,61 @@
+name: language-learner
+region: nyc
+
+# ── Web service (Express + built React) ──────────────────────────────────────
+services:
+- name: web
+  github:
+    # TODO: replace with your GitHub username and repo name
+    repo: YOUR_GITHUB_USERNAME/language-learner
+    branch: main
+    deploy_on_push: true
+
+  # Build: install & compile React, then install server deps
+  build_command: npm run install:all && npm run build
+
+  # Run: start the Express server (serves API + static React files)
+  run_command: npm start
+
+  # DO injects PORT automatically; our server reads process.env.PORT
+  http_port: 8080
+
+  instance_count: 1
+  instance_size_slug: apps-s-1vcpu-0.5gb   # $5/month — upgrade as needed
+
+  envs:
+  - key: NODE_ENV
+    value: production
+    scope: RUN_AND_BUILD_TIME
+
+  - key: PORT
+    value: "8080"
+    scope: RUN_TIME
+
+  # Injected automatically from the managed database below
+  - key: DATABASE_URL
+    value: ${db.DATABASE_URL}
+    scope: RUN_TIME
+
+  # Set these manually in the DO dashboard (Settings → Environment Variables)
+  - key: JWT_SECRET
+    scope: RUN_TIME
+    type: SECRET
+
+  - key: BRAVE_SEARCH_API_KEY
+    scope: RUN_TIME
+    type: SECRET
+
+  # Add this when you're ready for AI generation
+  - key: ANTHROPIC_API_KEY
+    scope: RUN_TIME
+    type: SECRET
+
+# ── Managed PostgreSQL database ───────────────────────────────────────────────
+databases:
+- name: db
+  engine: PG
+  version: "16"
+  # "dev-database" = $7/month (single node, no standby — fine for development/early prod)
+  # Upgrade to "db-s-1vcpu-1gb" ($15/month) for production traffic
+  size: dev-database
+  num_nodes: 1

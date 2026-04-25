@@ -3,6 +3,10 @@ const { Pool } = require('pg');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  // DigitalOcean Managed Postgres requires SSL in production
+  ...(process.env.NODE_ENV === 'production' && {
+    ssl: { rejectUnauthorized: false },
+  }),
 });
 
 async function initSchema() {

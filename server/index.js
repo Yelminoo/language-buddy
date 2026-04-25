@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const http = require('http');
+const path = require('path');
 const { Server } = require('socket.io');
 const { initSchema } = require('./db');
 
@@ -23,8 +24,15 @@ const io = new Server(server, {
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors({ origin: 'http://localhost:5173' }));
+const isProd = process.env.NODE_ENV === 'production';
+app.use(cors(isProd ? {} : { origin: 'http://localhost:5173' }));
 app.use(express.json());
+
+// Serve built React app in production
+if (isProd) {
+  const distPath = path.join(__dirname, '../client/dist');
+  app.use(express.static(distPath));
+}
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -39,6 +47,13 @@ app.use('/api/generate',   generateRoutes);
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+// Catch-all: serve React's index.html for any non-API route (production only)
+if (isProd) {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
+  });
+}
 
 // Socket.io — basic user room support
 const jwt = require('jsonwebtoken');
