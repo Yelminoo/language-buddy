@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
+import { useMobile } from '../hooks/useMobile';
 
 const FLAG_MAP = {
   Spanish: '🇪🇸', French: '🇫🇷', German: '🇩🇪', Japanese: '🇯🇵',
@@ -11,6 +12,7 @@ const FLAG_MAP = {
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const isMobile = useMobile();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -50,22 +52,23 @@ export default function DashboardPage() {
       <div className="card" style={{
         background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
         color: '#fff',
-        padding: '36px 32px',
+        padding: isMobile ? '24px 18px' : '36px 32px',
         marginBottom: 28,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        flexWrap: 'wrap',
         gap: 16,
       }}>
         <div>
-          <p style={{ opacity: 0.85, fontSize: 14, marginBottom: 6 }}>Welcome back,</p>
-          <h1 style={{ fontSize: 32, fontWeight: 700, marginBottom: 8 }}>{user?.name} 👋</h1>
-          <p style={{ opacity: 0.85, fontSize: 16 }}>
+          <p style={{ opacity: 0.85, fontSize: 13, marginBottom: 4 }}>Welcome back,</p>
+          <h1 style={{ fontSize: isMobile ? 24 : 32, fontWeight: 700, marginBottom: 6 }}>
+            {user?.name} 👋
+          </h1>
+          <p style={{ opacity: 0.85, fontSize: isMobile ? 14 : 16 }}>
             You're learning <strong>{user?.target_language}</strong> — keep it up!
           </p>
         </div>
-        <div style={{ fontSize: 80, lineHeight: 1 }}>{flag}</div>
+        {!isMobile && <div style={{ fontSize: 80, lineHeight: 1 }}>{flag}</div>}
       </div>
 
       {/* Stats row */}
@@ -73,7 +76,7 @@ export default function DashboardPage() {
         <p style={{ color: '#6b7280', textAlign: 'center' }}>Loading your stats...</p>
       ) : (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 32 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12, marginBottom: 28 }}>
             <StatCard
               label="Total vocabulary"
               value={stats.totalWords}

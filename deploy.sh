@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-APP_DIR="/var/www/language-learner"
+APP_DIR="/var/www/language-buddy"
 echo "🚀 Deploying Language Learner..."
 
 cd $APP_DIR
@@ -20,4 +20,4 @@ pm2 restart ecosystem.config.js --env production 2>/dev/null \
   || pm2 start ecosystem.config.js --env production
 
 pm2 save
-echo "✅ Done — app running on port 3001"
+echo "✅ Done — app running on port 3005"

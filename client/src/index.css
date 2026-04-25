@@ -160,6 +160,32 @@ input, select, textarea {
   padding: 32px 20px;
 }
 
+/* ── Mobile responsive ──────────────────────────── */
+@media (max-width: 640px) {
+  .page-container {
+    padding: 20px 14px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .page-title {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+
+  /* Stack any flex row that uses this class */
+  .mobile-stack {
+    flex-direction: column !important;
+  }
+
+  /* Hide on mobile */
+  .mobile-hidden {
+    display: none !important;
+  }
+}
+
 .page-title {
   font-size: 24px;
   font-weight: 700;

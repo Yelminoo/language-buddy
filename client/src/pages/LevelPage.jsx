@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../utils/api';
+import { useMobile } from '../hooks/useMobile';
 
 const SKILLS = ['reading', 'writing', 'listening', 'speaking'];
 const SKILL_ICONS = { reading: '📖', writing: '✍️', listening: '👂', speaking: '🗣️' };
@@ -43,6 +44,7 @@ function ProgressRing({ percent, color, size = 48 }) {
 export default function LevelPage() {
   const { code } = useParams();
   const navigate = useNavigate();
+  const isMobile = useMobile();
   const [level, setLevel] = useState(null);
   const [completedItems, setCompletedItems] = useState(new Set());
   const [activeSkill, setActiveSkill] = useState('reading');
@@ -144,58 +146,74 @@ export default function LevelPage() {
         background: `linear-gradient(135deg, ${accentColor} 0%, ${accentColor}cc 100%)`,
         color: '#fff',
         marginBottom: 24,
-        padding: '28px 32px',
+        padding: isMobile ? '18px 16px' : '28px 32px',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, flexWrap: 'wrap' }}>
               <span style={{
                 background: 'rgba(255,255,255,0.2)',
-                borderRadius: 6, padding: '4px 12px',
-                fontSize: 14, fontWeight: 700,
+                borderRadius: 6, padding: '3px 10px',
+                fontSize: 13, fontWeight: 700,
               }}>
                 {level.code}
               </span>
               {level.jlpt && (
                 <span style={{
                   background: 'rgba(255,255,255,0.15)',
-                  borderRadius: 6, padding: '4px 10px',
-                  fontSize: 13, fontWeight: 600,
+                  borderRadius: 6, padding: '3px 8px',
+                  fontSize: 12, fontWeight: 600,
                 }}>
                   JLPT {level.jlpt}
                 </span>
               )}
-              {level.kanji_count && (
+              {level.kanji_count && !isMobile && (
                 <span style={{
                   background: 'rgba(255,255,255,0.15)',
-                  borderRadius: 6, padding: '4px 10px',
-                  fontSize: 13,
+                  borderRadius: 6, padding: '3px 8px', fontSize: 12,
                 }}>
                   {level.kanji_count} kanji
                 </span>
               )}
             </div>
-            <h1 style={{ fontSize: 26, fontWeight: 700, marginBottom: 8 }}>{level.name}</h1>
-            <p style={{ opacity: 0.88, fontSize: 14, maxWidth: 520, lineHeight: 1.6 }}>{level.description}</p>
-          </div>
-          {/* Overall ring */}
-          <div style={{ textAlign: 'center', flexShrink: 0 }}>
-            <div style={{ position: 'relative', display: 'inline-block' }}>
-              <ProgressRing percent={overallPercent} color="rgba(255,255,255,0.9)" size={72} />
-              <div style={{
-                position: 'absolute', inset: 0,
-                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <span style={{ fontSize: 16, fontWeight: 700 }}>{overallPercent}%</span>
+            <h1 style={{ fontSize: isMobile ? 20 : 26, fontWeight: 700, marginBottom: 6 }}>{level.name}</h1>
+            {!isMobile && (
+              <p style={{ opacity: 0.88, fontSize: 14, maxWidth: 520, lineHeight: 1.6 }}>{level.description}</p>
+            )}
+            {/* Progress inline on mobile */}
+            {isMobile && (
+              <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>
+                {doneItems}/{totalItems} tasks complete · <strong>{overallPercent}%</strong>
               </div>
-            </div>
-            <div style={{ fontSize: 11, opacity: 0.8, marginTop: 4 }}>{doneItems}/{totalItems} tasks</div>
+            )}
           </div>
+          {/* Overall ring — desktop only */}
+          {!isMobile && (
+            <div style={{ textAlign: 'center', flexShrink: 0 }}>
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <ProgressRing percent={overallPercent} color="rgba(255,255,255,0.9)" size={72} />
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <span style={{ fontSize: 16, fontWeight: 700 }}>{overallPercent}%</span>
+                </div>
+              </div>
+              <div style={{ fontSize: 11, opacity: 0.8, marginTop: 4 }}>{doneItems}/{totalItems} tasks</div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Skill tabs */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
+      <div style={{
+        display: 'flex', gap: 8, marginBottom: 20,
+        overflowX: isMobile ? 'auto' : 'visible',
+        flexWrap: isMobile ? 'nowrap' : 'wrap',
+        scrollbarWidth: 'none',
+        WebkitOverflowScrolling: 'touch',
+        paddingBottom: isMobile ? 4 : 0,
+      }}>
         {SKILLS.map(skill => {
           const stats = skillStats[skill] || { percent: 0 };
           const isActive = skill === activeSkill;
@@ -205,18 +223,19 @@ export default function LevelPage() {
               key={skill}
               onClick={() => setActiveSkill(skill)}
               style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                padding: '10px 18px', borderRadius: 8, border: 'none',
+                display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 8,
+                padding: isMobile ? '9px 14px' : '10px 18px',
+                borderRadius: 8, border: 'none', flexShrink: 0,
                 background: isActive ? skillColor : '#fff',
                 color: isActive ? '#fff' : '#374151',
-                fontWeight: 600, fontSize: 14, cursor: 'pointer',
+                fontWeight: 600, fontSize: isMobile ? 13 : 14, cursor: 'pointer',
                 boxShadow: isActive ? `0 2px 8px ${skillColor}44` : '0 1px 3px rgba(0,0,0,0.08)',
                 transition: 'all 0.15s',
-                minWidth: 130,
+                minWidth: isMobile ? 'auto' : 130,
               }}
             >
-              <span style={{ fontSize: 17 }}>{SKILL_ICONS[skill]}</span>
-              <span style={{ textTransform: 'capitalize', flex: 1, textAlign: 'left' }}>{skill}</span>
+              <span style={{ fontSize: isMobile ? 15 : 17 }}>{SKILL_ICONS[skill]}</span>
+              <span style={{ textTransform: 'capitalize' }}>{skill}</span>
               <span style={{
                 fontSize: 11, fontWeight: 700,
                 background: isActive ? 'rgba(255,255,255,0.25)' : `${skillColor}18`,
