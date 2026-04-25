@@ -6,7 +6,7 @@ services:
 - name: web
   github:
     # TODO: replace with your GitHub username and repo name
-    repo: YOUR_GITHUB_USERNAME/language-learner
+    repo: Yelminoo/language-buddy
     branch: main
     deploy_on_push: true
 
